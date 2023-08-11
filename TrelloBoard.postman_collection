@@ -1,0 +1,1053 @@
+{
+	"info": {
+		"_postman_id": "378a6bef-f2fd-4a94-8e65-57cefdc12f3a",
+		"name": "Trello Board",
+		"description": "The collection aims to test the trello.com website's API within the scope of boards. The methods will be based on CRUD operations and E2E testing.\n\nThe collection includes functional and integration tests, as well as contract testing. Both happy paths and error handling will be tested. Collection is created based on test cases ([https://github.com/DorotaTrzpil/testingRepo/blob/328d21430438b2c9e38a700c6fcb7abf26739ead/TrelloTestCase.ods) ](https://github.com/DorotaTrzpil/testingRepo/blob/328d21430438b2c9e38a700c6fcb7abf26739ead/TrelloTestCase.ods) and the trello.com documentation ([https://developer.atlassian.com/cloud/trello/rest/api-group-boards/#api-group-boards](https://developer.atlassian.com/cloud/trello/rest/api-group-boards/#api-group-boards))",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24213863"
+	},
+	"item": [
+		{
+			"name": "Create board",
+			"item": [
+				{
+					"name": "Create board#1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"let response = pm.response.json();\r",
+									" \r",
+									"\r",
+									"pm.test(\"The board has a name (not empty string)\", () => {\r",
+									"        pm.expect(response.name).to.be.a(\"string\")\r",
+									"        pm.expect(response.name).is.not.empty \r",
+									"})\r",
+									"\r",
+									"\r",
+									"pm.collectionVariables.set(\"1boardId\", response.id)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{basicUrl}}?name={{$randomAdjective}}",
+							"host": [
+								"{{basicUrl}}"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "{{$randomAdjective}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Functional testing: verify board is created",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Board is created with name and id\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(response.id).is.not.empty\r",
+									"    pm.expect(response.name).is.not.empty\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{basicUrl}}{{1boardId}}",
+							"host": [
+								"{{basicUrl}}{{1boardId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create board without name parameter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400: Bad Request\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"    pm.response.to.have.status(\"Bad Request\");\r",
+									"});\r",
+									"\r",
+									"let response = pm.response.json();\r",
+									" \r",
+									"\r",
+									"pm.test(\"Messsage 'Invalid value for name' is displayed\", () => {\r",
+									"        pm.expect(response.message).to.be.equal(\"invalid value for name\")\r",
+									"})\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{basicUrl}}",
+							"host": [
+								"{{basicUrl}}"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "123",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create board#2 with numerical name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"let response = pm.response.json();\r",
+									" \r",
+									"\r",
+									"pm.test(\"Name is saved as a string, not number\", () => {\r",
+									"        pm.expect(response.name).to.be.a(\"string\")\r",
+									"})\r",
+									"\r",
+									"pm.collectionVariables.set(\"2boardId\", response.id)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{basicUrl}}?name=123",
+							"host": [
+								"{{basicUrl}}"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "123"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create board#3 with optional parameters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"let response = pm.response.json();\r",
+									" \r",
+									"\r",
+									"pm.test(\"Parameter 'description' is not empty\", () => {\r",
+									"        pm.expect(response.desc).is.not.empty\r",
+									"})\r",
+									"\r",
+									"pm.test (\"Parameter 'prefers_voting' has value 'members'\", () => {\r",
+									"    pm.expect(response.prefs.voting).to.be.equal(\"members\")\r",
+									"})\r",
+									"\r",
+									"pm.collectionVariables.set(\"3boardId\", response.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{basicUrl}}?name={{$randomBsAdjective}}&desc={{$randomAdjective}}&prefs_voting=members",
+							"host": [
+								"{{basicUrl}}"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "{{$randomBsAdjective}}"
+								},
+								{
+									"key": "desc",
+									"value": "{{$randomAdjective}}"
+								},
+								{
+									"key": "prefs_voting",
+									"value": "members"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "**Scope of test**: create a board using the post method\n\n**Requirements according to Trello documentation** ([https://developer.atlassian.com/cloud/trello/rest/api-group-boards/#api-boards-post](https://developer.atlassian.com/cloud/trello/rest/api-group-boards/#api-boards-post)):\n\n- Name is a required query parameter\n- Name must be a string, 1 to 16384 characters long\n- Board can be created with optional parameters\n    \n\nTesting will cover test cases: id1, id2 ([https://github.com/DorotaTrzpil/testingRepo/blob/328d21430438b2c9e38a700c6fcb7abf26739ead/TrelloTestCase.ods](https://github.com/DorotaTrzpil/testingRepo/blob/328d21430438b2c9e38a700c6fcb7abf26739ead/TrelloTestCase.ods)) and includes contract, integration and functional testing."
+		},
+		{
+			"name": "//Preparations for test",
+			"item": [
+				{
+					"name": "// Prestep: Delete board#1",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{basicUrl}}{{1boardId}}",
+							"host": [
+								"{{basicUrl}}{{1boardId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "// Prestep: Delete board#2",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{basicUrl}}{{2boardId}}",
+							"host": [
+								"{{basicUrl}}{{2boardId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "In this section, unused boards are deleted to keep collection clean."
+		},
+		{
+			"name": "Read board",
+			"item": [
+				{
+					"name": "Get board#3 and verify schema",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.response.to.have.status(\"OK\");\r",
+									"});\r",
+									"\r",
+									"let response = pm.response.json();\r",
+									"\r",
+									"const schema = {\r",
+									"  \"type\": \"object\",\r",
+									"  \"properties\": {\r",
+									"    \"id\": {\r",
+									"      \"type\": \"string\"\r",
+									"    },\r",
+									"    \"name\": {\r",
+									"      \"type\": \"string\"\r",
+									"    },\r",
+									"    \"desc\": {\r",
+									"      \"type\": \"string\"\r",
+									"    },\r",
+									"    \"descData\": {\r",
+									"      \"type\": \"null\"\r",
+									"    },\r",
+									"    \"closed\": {\r",
+									"      \"type\": \"boolean\"\r",
+									"    },\r",
+									"    \"idOrganization\": {\r",
+									"      \"type\": \"string\"\r",
+									"    },\r",
+									"    \"idEnterprise\": {\r",
+									"      \"type\": \"null\"\r",
+									"    },\r",
+									"    \"pinned\": {\r",
+									"      \"type\": \"boolean\"\r",
+									"    },\r",
+									"    \"url\": {\r",
+									"      \"type\": \"string\"\r",
+									"    },\r",
+									"    \"shortUrl\": {\r",
+									"      \"type\": \"string\"\r",
+									"    },\r",
+									"    \"prefs\": {\r",
+									"      \"type\": \"object\",\r",
+									"      \"properties\": {\r",
+									"        \"permissionLevel\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"hideVotes\": {\r",
+									"          \"type\": \"boolean\"\r",
+									"        },\r",
+									"        \"voting\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"comments\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"invitations\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"selfJoin\": {\r",
+									"          \"type\": \"boolean\"\r",
+									"        },\r",
+									"        \"cardCovers\": {\r",
+									"          \"type\": \"boolean\"\r",
+									"        },\r",
+									"        \"isTemplate\": {\r",
+									"          \"type\": \"boolean\"\r",
+									"        },\r",
+									"        \"cardAging\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"calendarFeedEnabled\": {\r",
+									"          \"type\": \"boolean\"\r",
+									"        },\r",
+									"        \"hiddenPluginBoardButtons\": {\r",
+									"          \"type\": \"array\",\r",
+									"          \"items\": {}\r",
+									"        },\r",
+									"        \"switcherViews\": {\r",
+									"          \"type\": \"array\",\r",
+									"          \"items\": [\r",
+									"            {\r",
+									"              \"type\": \"object\",\r",
+									"              \"properties\": {\r",
+									"                \"viewType\": {\r",
+									"                  \"type\": \"string\"\r",
+									"                },\r",
+									"                \"enabled\": {\r",
+									"                  \"type\": \"boolean\"\r",
+									"                }\r",
+									"              },\r",
+									"              \"required\": [\r",
+									"                \"viewType\",\r",
+									"                \"enabled\"\r",
+									"              ]\r",
+									"            },\r",
+									"            {\r",
+									"              \"type\": \"object\",\r",
+									"              \"properties\": {\r",
+									"                \"viewType\": {\r",
+									"                  \"type\": \"string\"\r",
+									"                },\r",
+									"                \"enabled\": {\r",
+									"                  \"type\": \"boolean\"\r",
+									"                }\r",
+									"              },\r",
+									"              \"required\": [\r",
+									"                \"viewType\",\r",
+									"                \"enabled\"\r",
+									"              ]\r",
+									"            },\r",
+									"            {\r",
+									"              \"type\": \"object\",\r",
+									"              \"properties\": {\r",
+									"                \"viewType\": {\r",
+									"                  \"type\": \"string\"\r",
+									"                },\r",
+									"                \"enabled\": {\r",
+									"                  \"type\": \"boolean\"\r",
+									"                }\r",
+									"              },\r",
+									"              \"required\": [\r",
+									"                \"viewType\",\r",
+									"                \"enabled\"\r",
+									"              ]\r",
+									"            },\r",
+									"            {\r",
+									"              \"type\": \"object\",\r",
+									"              \"properties\": {\r",
+									"                \"viewType\": {\r",
+									"                  \"type\": \"string\"\r",
+									"                },\r",
+									"                \"enabled\": {\r",
+									"                  \"type\": \"boolean\"\r",
+									"                }\r",
+									"              },\r",
+									"              \"required\": [\r",
+									"                \"viewType\",\r",
+									"                \"enabled\"\r",
+									"              ]\r",
+									"            },\r",
+									"            {\r",
+									"              \"type\": \"object\",\r",
+									"              \"properties\": {\r",
+									"                \"viewType\": {\r",
+									"                  \"type\": \"string\"\r",
+									"                },\r",
+									"                \"enabled\": {\r",
+									"                  \"type\": \"boolean\"\r",
+									"                }\r",
+									"              },\r",
+									"              \"required\": [\r",
+									"                \"viewType\",\r",
+									"                \"enabled\"\r",
+									"              ]\r",
+									"            },\r",
+									"            {\r",
+									"              \"type\": \"object\",\r",
+									"              \"properties\": {\r",
+									"                \"viewType\": {\r",
+									"                  \"type\": \"string\"\r",
+									"                },\r",
+									"                \"enabled\": {\r",
+									"                  \"type\": \"boolean\"\r",
+									"                }\r",
+									"              },\r",
+									"              \"required\": [\r",
+									"                \"viewType\",\r",
+									"                \"enabled\"\r",
+									"              ]\r",
+									"            }\r",
+									"          ]\r",
+									"        },\r",
+									"        \"background\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"backgroundColor\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"backgroundImage\": {\r",
+									"          \"type\": \"null\"\r",
+									"        },\r",
+									"        \"backgroundImageScaled\": {\r",
+									"          \"type\": \"null\"\r",
+									"        },\r",
+									"        \"backgroundTile\": {\r",
+									"          \"type\": \"boolean\"\r",
+									"        },\r",
+									"        \"backgroundBrightness\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"backgroundBottomColor\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"backgroundTopColor\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"canBePublic\": {\r",
+									"          \"type\": \"boolean\"\r",
+									"        },\r",
+									"        \"canBeEnterprise\": {\r",
+									"          \"type\": \"boolean\"\r",
+									"        },\r",
+									"        \"canBeOrg\": {\r",
+									"          \"type\": \"boolean\"\r",
+									"        },\r",
+									"        \"canBePrivate\": {\r",
+									"          \"type\": \"boolean\"\r",
+									"        },\r",
+									"        \"canInvite\": {\r",
+									"          \"type\": \"boolean\"\r",
+									"        }\r",
+									"      },\r",
+									"      \"required\": [\r",
+									"        \"permissionLevel\",\r",
+									"        \"hideVotes\",\r",
+									"        \"voting\",\r",
+									"        \"comments\",\r",
+									"        \"invitations\",\r",
+									"        \"selfJoin\",\r",
+									"        \"cardCovers\",\r",
+									"        \"isTemplate\",\r",
+									"        \"cardAging\",\r",
+									"        \"calendarFeedEnabled\",\r",
+									"        \"hiddenPluginBoardButtons\",\r",
+									"        \"switcherViews\",\r",
+									"        \"background\",\r",
+									"        \"backgroundColor\",\r",
+									"        \"backgroundImage\",\r",
+									"        \"backgroundImageScaled\",\r",
+									"        \"backgroundTile\",\r",
+									"        \"backgroundBrightness\",\r",
+									"        \"backgroundBottomColor\",\r",
+									"        \"backgroundTopColor\",\r",
+									"        \"canBePublic\",\r",
+									"        \"canBeEnterprise\",\r",
+									"        \"canBeOrg\",\r",
+									"        \"canBePrivate\",\r",
+									"        \"canInvite\"\r",
+									"      ]\r",
+									"    },\r",
+									"    \"labelNames\": {\r",
+									"      \"type\": \"object\",\r",
+									"      \"properties\": {\r",
+									"        \"green\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"yellow\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"orange\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"red\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"purple\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"blue\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"sky\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"lime\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"pink\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"black\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"green_dark\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"yellow_dark\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"orange_dark\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"red_dark\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"purple_dark\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"blue_dark\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"sky_dark\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"lime_dark\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"pink_dark\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"black_dark\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"green_light\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"yellow_light\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"orange_light\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"red_light\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"purple_light\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"blue_light\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"sky_light\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"lime_light\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"pink_light\": {\r",
+									"          \"type\": \"string\"\r",
+									"        },\r",
+									"        \"black_light\": {\r",
+									"          \"type\": \"string\"\r",
+									"        }\r",
+									"      },\r",
+									"      \"required\": [\r",
+									"        \"green\",\r",
+									"        \"yellow\",\r",
+									"        \"orange\",\r",
+									"        \"red\",\r",
+									"        \"purple\",\r",
+									"        \"blue\",\r",
+									"        \"sky\",\r",
+									"        \"lime\",\r",
+									"        \"pink\",\r",
+									"        \"black\",\r",
+									"        \"green_dark\",\r",
+									"        \"yellow_dark\",\r",
+									"        \"orange_dark\",\r",
+									"        \"red_dark\",\r",
+									"        \"purple_dark\",\r",
+									"        \"blue_dark\",\r",
+									"        \"sky_dark\",\r",
+									"        \"lime_dark\",\r",
+									"        \"pink_dark\",\r",
+									"        \"black_dark\",\r",
+									"        \"green_light\",\r",
+									"        \"yellow_light\",\r",
+									"        \"orange_light\",\r",
+									"        \"red_light\",\r",
+									"        \"purple_light\",\r",
+									"        \"blue_light\",\r",
+									"        \"sky_light\",\r",
+									"        \"lime_light\",\r",
+									"        \"pink_light\",\r",
+									"        \"black_light\"\r",
+									"      ]\r",
+									"    }\r",
+									"  },\r",
+									"  \"required\": [\r",
+									"    \"id\",\r",
+									"    \"name\",\r",
+									"    \"desc\",\r",
+									"    \"descData\",\r",
+									"    \"closed\",\r",
+									"    \"idOrganization\",\r",
+									"    \"idEnterprise\",\r",
+									"    \"pinned\",\r",
+									"    \"url\",\r",
+									"    \"shortUrl\",\r",
+									"    \"prefs\",\r",
+									"    \"labelNames\"\r",
+									"  ]\r",
+									"}\r",
+									"\r",
+									"pm.test(\"Response has valid schema\", () =>{\r",
+									"    pm.expect(response).to.have.jsonSchema(schema)\r",
+									"})\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{basicUrl}}{{3boardId}}",
+							"host": [
+								"{{basicUrl}}{{3boardId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get board#3 with optional params",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.response.to.have.status(\"OK\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response contains optional param: BoardStar\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"boardStars\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{basicUrl}}{{3boardId}}?boardStars=mine",
+							"host": [
+								"{{basicUrl}}{{3boardId}}"
+							],
+							"query": [
+								{
+									"key": "boardStars",
+									"value": "mine"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get deleted board#2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404: Not Found\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"    pm.response.to.have.status(\"Not Found\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{basicUrl}}{{1boardId}}",
+							"host": [
+								"{{basicUrl}}{{1boardId}}"
+							],
+							"query": [
+								{
+									"key": "boardStars",
+									"value": "mine",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "**Scope of test**: read a board using the get method\n\n**Requirements according to Trello documentation** ([https://developer.atlassian.com/cloud/trello/rest/api-group-boards/#api-boards-id-get](https://developer.atlassian.com/cloud/trello/rest/api-group-boards/#api-boards-id-get)):\n\n- Board id is a required path parameter\n- Deleted board can't be read\n- Board can be read with optional parameters\n    \n\nTesting will cover test case: id3 ([https://github.com/DorotaTrzpil/testingRepo/blob/328d21430438b2c9e38a700c6fcb7abf26739ead/TrelloTestCase.ods) ](https://github.com/DorotaTrzpil/testingRepo/blob/328d21430438b2c9e38a700c6fcb7abf26739ead/TrelloTestCase.ods) and includes contract and integration testing."
+		},
+		{
+			"name": "Update board",
+			"item": [
+				{
+					"name": "Update parameters of board#3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"var response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Name parameter is updated\", () => {\r",
+									"    pm.expect(response.name).to.be.equal(\"name test\")\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Description parameter is updated\", () => {\r",
+									"    pm.expect(response.desc).to.be.equal(\"desc test\")\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{basicUrl}}{{3boardId}}?name=name test&desc=desc test",
+							"host": [
+								"{{basicUrl}}{{3boardId}}"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "name test"
+								},
+								{
+									"key": "desc",
+									"value": "desc test"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Functional testing: verify board is update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"var response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Name parameter is updated\", () => {\r",
+									"    pm.expect(response.name).to.be.equal(\"name test\")\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Description parameter is updated\", () => {\r",
+									"    pm.expect(response.desc).to.be.equal(\"desc test\")\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{basicUrl}}{{3boardId}}",
+							"host": [
+								"{{basicUrl}}{{3boardId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update deleted board#2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404: Not Found\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"    pm.response.to.have.status(\"Not Found\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{basicUrl}}{{2boardId}}?name=test",
+							"host": [
+								"{{basicUrl}}{{2boardId}}"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "test"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "**Scope of test**: update a board using the put method\n\n**Requirements according to Trello documentation** ([https://developer.atlassian.com/cloud/trello/rest/api-group-boards/#api-boards-id-put)](https://developer.atlassian.com/cloud/trello/rest/api-group-boards/#api-boards-id-put)\n\n- Board id is a required path parameter\n    \n- Board can be uptated with optional parameters\n    \n- Deleted board can't be uptade\n    \n\nTesting will cover test cases: 4 ([https://github.com/DorotaTrzpil/testingRepo/blob/328d21430438b2c9e38a700c6fcb7abf26739ead/TrelloTestCase.ods](https://github.com/DorotaTrzpil/testingRepo/blob/328d21430438b2c9e38a700c6fcb7abf26739ead/TrelloTestCase.ods)) and includes contract, integration and functional testing."
+		},
+		{
+			"name": "Delete board",
+			"item": [
+				{
+					"name": "Delete board#3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has value 'null'\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData._value).to.eql(null);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{basicUrl}}{{3boardId}}",
+							"host": [
+								"{{basicUrl}}{{3boardId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Functional testing: verify board is deleted",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404 Not Found\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"    pm.response.to.have.status(\"Not Found\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{basicUrl}}{{3boardId}}",
+							"host": [
+								"{{basicUrl}}{{3boardId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "**Scope of test**: update a board using the put method\n\n**Requirements according to Trello documentation** ([https://developer.atlassian.com/cloud/trello/rest/api-group-boards/#api-boards-id-delete](https://developer.atlassian.com/cloud/trello/rest/api-group-boards/#api-boards-id-delete)):\n\n- Board id is a required path parameter\n    \n\nTesting will cover test cases: 5 ([https://github.com/DorotaTrzpil/testingRepo/blob/328d21430438b2c9e38a700c6fcb7abf26739ead/TrelloTestCase.ods](https://github.com/DorotaTrzpil/testingRepo/blob/328d21430438b2c9e38a700c6fcb7abf26739ead/TrelloTestCase.ods)) and includes contract, integration and functional testing."
+		}
+	],
+	"auth": {
+		"type": "oauth1",
+		"oauth1": [
+			{
+				"key": "consumerKey",
+				"value": "{{key}}",
+				"type": "string"
+			},
+			{
+				"key": "consumerSecret",
+				"value": "{{secret}}",
+				"type": "string"
+			},
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			},
+			{
+				"key": "signatureMethod",
+				"value": "HMAC-SHA1",
+				"type": "string"
+			},
+			{
+				"key": "version",
+				"value": "1.0",
+				"type": "string"
+			},
+			{
+				"key": "addParamsToHeader",
+				"value": false,
+				"type": "boolean"
+			},
+			{
+				"key": "addEmptyParamsToSign",
+				"value": false,
+				"type": "boolean"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "basicUrl",
+			"value": "https://api.trello.com/1/boards/"
+		},
+		{
+			"key": "key",
+			"value": "7fde9b9074fcf3328fa33c88f5211896"
+		},
+		{
+			"key": "secret",
+			"value": "9891ff7d81ecff1e3b8307750231fd8fd0ca827e5064683b4f404aa85d8a496a"
+		},
+		{
+			"key": "token",
+			"value": "ATTA7919ab144c07c294afad16dcdfa471eec0c3c9e0d7e240d0f6556e644392c1125C3B13A9"
+		},
+		{
+			"key": "boardId",
+			"value": ""
+		},
+		{
+			"key": "longName",
+			"value": "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"
+		},
+		{
+			"key": "1boardId",
+			"value": ""
+		},
+		{
+			"key": "2boardId",
+			"value": ""
+		},
+		{
+			"key": "3boardId",
+			"value": ""
+		}
+	]
+}
